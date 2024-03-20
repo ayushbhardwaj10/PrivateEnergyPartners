@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { validatePassword, hashPassword } from "../utils/HelperFunctions";
-import { MODE, SIGNUP_API_URL } from "../utils/Constants";
+import { MODE, SIGNUP_API_URL, SIGNIN_API_URL } from "../utils/Constants";
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -33,11 +33,10 @@ const Login = () => {
 
       // hashPassword is a async method, thus, call SignAPI only when hashPassword() returns results
       hashPassword(password).then((passwordHash) => {
-        console.log("hash of Password: " + passwordHash);
-        console.log(fullName);
-        console.log(userName);
-        console.log(password);
-        console.log(password2);
+        // console.log(fullName);
+        // console.log(userName);
+        // console.log(password);
+        // console.log(password2);
 
         fetch(SIGNUP_API_URL[MODE], {
           method: "POST",
@@ -52,7 +51,7 @@ const Login = () => {
         })
           .then((response) => {
             if (!response.ok) {
-              if (response.status == 401) {
+              if (response.status === 401) {
                 setSuccessMessage("");
                 setErrorMessage("Username already exists");
               }
@@ -70,9 +69,41 @@ const Login = () => {
           .catch((error) => console.log(error));
       });
     } else {
-      // sign in the user
+      // sign in user
+      hashPassword(password).then((passwordHash) => {
+        fetch(SIGNIN_API_URL[MODE], {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userName: userName,
+            password: passwordHash,
+          }),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              if (response.status === 401) {
+                setSuccessMessage("");
+                setErrorMessage("Incorrect Username or Password");
+              }
+              throw new Error("Sign in Failure");
+            } else {
+              return response.json();
+            }
+          })
+          .then((data) => {
+            // Sign in is successull
+            setErrorMessage("");
+            setSuccessMessage("Success Sign in");
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      });
     }
   };
+
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
   };
@@ -167,26 +198,6 @@ const Login = () => {
 
                 <div className="text-sm text-red-500 font-bold">{errorMessage}</div>
                 <div className="text-sm text-green-500 font-bold">{successMessage}</div>
-
-                {/* <div className="flex items-center justify-between">
-                  <div className="flex items-start">
-                    <div className="flex items-center h-5">
-                      <input
-                        id="remember"
-                        aria-describedby="remember"
-                        type="checkbox"
-                        className="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800"
-                        required=""
-                      />
-                    </div>
-                    <div className="ml-3 text-sm">
-                      <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">
-                        Remember me
-                      </label>
-                    </div>
-                  </div>
-                  <div className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500">Forgot password?</div>
-                </div> */}
                 <button
                   className="w-full text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                   onClick={submitForm}

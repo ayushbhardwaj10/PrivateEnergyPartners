@@ -1,9 +1,8 @@
 from flask import Flask,jsonify, request, send_from_directory
 from flask_cors import CORS
-from dbConnection import db_config
+from utils.dbConnection import db_config
 import pymysql.cursors
-from werkzeug.security import generate_password_hash
-
+import hashlib
 
 app = Flask(__name__, static_folder='../frontend/energyapp/build', static_url_path='')
 
@@ -30,12 +29,15 @@ def signup():
         return jsonify({"error": "Missing fullName, userName, or password"}), 400
     
     if(check_username_exists(userName)==1):
-      print("already exists")
       return jsonify({"error": "UserName already exists"}), 401
 
     # Generate a salt and hash the password
-    salt = generate_password_hash(userName + fullName, method='pbkdf2:sha256')
-    password_hash = generate_password_hash(password + salt, method='pbkdf2:sha256')
+    salt_source = userName + fullName
+    salt = hashlib.sha256(salt_source.encode()).hexdigest()
+
+    password_salt_combo = password + salt
+    password_hash = hashlib.sha256(password_salt_combo.encode()).hexdigest()
+
 
     # Attempt to insert into the database
     try:
@@ -55,6 +57,45 @@ def signup():
         if connection:
             connection.close()
 
+@app.route('/login', methods=['POST'])
+def login():
+    # Extract username and password from the request
+    username = request.json.get('userName')
+    password = request.json.get('password')
+
+
+    if not username or not password:
+        return jsonify({"error": "Username and password are required"}), 400
+
+    try:
+        # Connect to the database
+        connection = pymysql.connect(**db_config)
+        with connection.cursor() as cursor:
+            # Fetch the user's salt and password_hash
+            sql = "SELECT salt, password_hash FROM users WHERE userName = %s"
+            cursor.execute(sql, (username,))
+            result = cursor.fetchone()
+            
+            if not result:
+                return jsonify({"error": "Username does not exist"}), 404
+            
+            salt, stored_password_hash = result['salt'], result['password_hash']
+
+            # Generate the hash of the provided password with the fetched salt
+            password_salt_combo = password + salt
+            password_hash = hashlib.sha256(password_salt_combo.encode()).hexdigest() 
+            
+            # Check if the generated hash matches the stored hash
+            if password_hash == stored_password_hash:
+                return jsonify({"message": "Successful login"}), 200
+            else:
+                return jsonify({"error": "Login failed"}), 401
+                
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        connection.close()
+
 def check_username_exists(username):
     try:
         # Establish a database connection
@@ -67,7 +108,6 @@ def check_username_exists(username):
             # Check the result and return True if the user exists, False otherwise
             return result['userExists']
     except Exception as e:
-        print(f"Error checking username existence: {e}")
         return False  # Consider how you want to handle errors; False is a simple approach
     finally:
         if connection:
