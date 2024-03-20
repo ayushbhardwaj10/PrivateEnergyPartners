@@ -1,11 +1,9 @@
 import "./App.css";
-
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Login from "./components/Login";
 function App() {
-  return (
-    <div className="App">
-      <h1>Welcome to Energy Partners Application</h1>
-    </div>
-  );
+  const appRouter = createBrowserRouter([{ path: "/", element: <Login /> }]);
+  return <RouterProvider router={appRouter} />;
 }
 
 export default App;
