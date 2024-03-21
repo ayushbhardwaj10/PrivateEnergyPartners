@@ -9,7 +9,8 @@ import { Provider } from "react-redux";
 function App() {
   const appRouter = createBrowserRouter([
     { path: "/", element: <Login /> },
-    { path: "/home", element: <ProtectedComponent Component={Home} /> },
+    // { path: "/home", element: <ProtectedComponent Component={Home} /> },
+    { path: "/home", element: <Home /> },
   ]);
   return (
     <Provider store={Store}>

@@ -103,6 +103,7 @@ const Login = () => {
             setErrorMessage("");
             setSuccessMessage("Success Sign in");
             localStorage.setItem("token", data.token);
+            localStorage.setItem("refresh_token", data.refresh_token);
             localStorage.setItem("fullName", data.fullName);
             localStorage.setItem("userName", userName);
             navigate("/home");

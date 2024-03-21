@@ -15,6 +15,7 @@ app.config['SECRET_KEY'] = JWT_SECRET_KEY
 # Enable CORS for all domains on all routes
 CORS(app, supports_credentials=True, resources={r"*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"], "expose_headers": ["Access-Control-Allow-Origin"], "supports_credentials": True}})
 
+
 #Utility Function to Verify Tokens
 def token_required(f):
     @wraps(f)
@@ -41,11 +42,9 @@ def token_required(f):
 def protected():
     return jsonify({'message': 'This is only available for people with valid tokens.'})
 
-
 @app.route('/')
 def serve():
     return send_from_directory(app.static_folder, 'index.html')
-
 
 @app.route('/signup', methods=['POST'])
 def signup():
@@ -125,7 +124,14 @@ def login():
             if password_hash == stored_password_hash:
                 # return jsonify({"message": "Successful login", "fullName" : fullName}), 200
                 token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)}, app.config['SECRET_KEY'], algorithm="HS256")
-                return jsonify({"message": "Successful login", "fullName" : fullName,'token': token}), 200
+                
+                # Generate refresh token
+                refresh_token = jwt.encode(
+                    {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=2)},
+                    app.config['SECRET_KEY'], algorithm="HS256"
+                )
+
+                return jsonify({"message": "Successful login", "fullName" : fullName,'token': token,'refresh_token':refresh_token}), 200
             else:
                 # return jsonify({"error": "Login failed"}), 401
                  return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
@@ -134,6 +140,8 @@ def login():
         return jsonify({"error": str(e)}), 500
     finally:
         connection.close()
+
+
 
 @app.route('/tokenValid', methods=['GET']) 
 def validate_token():
@@ -152,6 +160,34 @@ def validate_token():
         return jsonify({'message': 'Token has expired!'}), 402
     except Exception as e:
         return jsonify({'message': 'Token is invalid!'}), 401
+
+@app.route('/refresh_token', methods=['POST'])
+def refresh_access_token():
+
+    auth_header = request.headers.get('Authorization')
+    if auth_header and auth_header.startswith('Bearer '):
+        refresh_token = auth_header.split(" ")[1]
+    else:
+        return jsonify({'message': 'Token is missing!'}), 400
+    
+    try:
+        # Attempt to decode the refresh token
+        payload = jwt.decode(refresh_token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        # Extract user info from token payload if needed
+        username = payload['user']
+        
+        # Generate a new access token
+        new_access_token = jwt.encode({
+            'user': username,
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        }, app.config['SECRET_KEY'], algorithm="HS256")
+        
+        # Send new access token to the client
+        return jsonify({'token': new_access_token})
+    except jwt.ExpiredSignatureError:
+        return jsonify({'message': 'Refresh token expired'}), 401  # Specific message for expired token
+    except:
+        return jsonify({'message': 'Invalid refresh token'}), 400
 
 
 def check_username_exists(username):
