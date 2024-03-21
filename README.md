@@ -22,13 +22,17 @@ React
 7. Following Modular programming approach : Built seperate files for storing the constants in utils/constants.js, utils/HelperFunctions.js
 8. Security : Sending one way Hash of the password and not exposing the original password on network call.
 
-   How one way hash is working in code :
+   One way hash implementation in code :
 
    - Text Encoding: The password string is first encoded into a Uint8Array using TextEncoder. This is necessary because the Web Crypto API operates on byte data, not strings.
 
    - Hashing: The crypto.subtle.digest method is used to hash the encoded data. This method is part of the SubtleCrypto interface, which provides a number of low-level cryptographic primitives. The 'SHA-256' argument specifies that we want to use the SHA-256 hash function.
 
    - Hash Conversion: The result of crypto.subtle.digest is an ArrayBuffer. This buffer is converted into an array of bytes (Uint8Array), and then each byte is converted to a hexadecimal string. These hex strings are concatenated to form the final hash string.
+
+9. Protecting the routes : Users cannot enter Home page (ie. /home) without first logging it. If they try, they will automatically be re-routed to the login page.
+10. Responsive UI development : Using tailwind CSS.
+11. Logout : When user click logout, clear the Redux store and navigate to login page.
 
 ##############################
 MySQL Database

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { validatePassword, hashPassword } from "../utils/HelperFunctions";
 import { MODE, SIGNUP_API_URL, SIGNIN_API_URL } from "../utils/Constants";
+import { useNavigate } from "react-router-dom";
+import { checkToken } from "../utils/HelperFunctions";
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -12,6 +14,7 @@ const Login = () => {
   const [password2, setPassword2] = useState("");
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
+  const navigate = useNavigate();
 
   const toggleSignUp = () => {
     setIsSignUp(!isSignUp);
@@ -71,10 +74,13 @@ const Login = () => {
     } else {
       // sign in user
       hashPassword(password).then((passwordHash) => {
+        const credentials = btoa(`${userName}:${passwordHash}`); // Base64 encode username and password
+
         fetch(SIGNIN_API_URL[MODE], {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Basic ${credentials}`,
           },
           body: JSON.stringify({
             userName: userName,
@@ -96,6 +102,10 @@ const Login = () => {
             // Sign in is successull
             setErrorMessage("");
             setSuccessMessage("Success Sign in");
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("fullName", data.fullName);
+            localStorage.setItem("userName", userName);
+            navigate("/home");
           })
           .catch((error) => {
             console.log(error);
@@ -110,6 +120,19 @@ const Login = () => {
   const togglePasswordVisibility2 = () => {
     setIsPasswordVisible2(!isPasswordVisible2);
   };
+
+  useEffect(() => {
+    checkToken()
+      .then((data) => {
+        const tokenData = data;
+        if (tokenData.tokenFound) {
+          navigate("/home");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
 
   return (
     <div>
