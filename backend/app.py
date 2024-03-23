@@ -7,7 +7,10 @@ import hashlib
 import jwt
 from jwt import ExpiredSignatureError
 import datetime
+from datetime import timedelta
 from functools import wraps
+from utils.helperFunctions import get_percentage
+
 
 app = Flask(__name__, static_folder='../frontend/energyapp/build', static_url_path='')
 app.config['SECRET_KEY'] = JWT_SECRET_KEY
@@ -88,7 +91,6 @@ def signup():
 
 @app.route('/login', methods=['POST'])
 def login():
-
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
@@ -107,14 +109,14 @@ def login():
         connection = pymysql.connect(**db_config)
         with connection.cursor() as cursor:
             # Fetch the user's salt and password_hash
-            sql = "SELECT salt, password_hash, fullname FROM users WHERE userName = %s"
+            sql = "SELECT salt, password_hash, fullname, user_id FROM users WHERE userName = %s"
             cursor.execute(sql, (username,))
             result = cursor.fetchone()
             
             if not result:
                 return jsonify({"error": "Username does not exist"}), 404
             
-            salt, stored_password_hash, fullName = result['salt'], result['password_hash'], result['fullname']
+            salt, stored_password_hash, fullName,user_id = result['salt'], result['password_hash'], result['fullname'],result['user_id']
 
             # Generate the hash of the provided password with the fetched salt
             password_salt_combo = password + salt
@@ -131,7 +133,7 @@ def login():
                     app.config['SECRET_KEY'], algorithm="HS256"
                 )
 
-                return jsonify({"message": "Successful login", "fullName" : fullName,'token': token,'refresh_token':refresh_token}), 200
+                return jsonify({"message": "Successful login", "fullName": fullName, "token": token, "userid": user_id, "refresh_token": refresh_token}), 200
             else:
                 # return jsonify({"error": "Login failed"}), 401
                  return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
@@ -140,8 +142,6 @@ def login():
         return jsonify({"error": str(e)}), 500
     finally:
         connection.close()
-
-
 
 @app.route('/tokenValid', methods=['GET']) 
 def validate_token():
@@ -189,7 +189,6 @@ def refresh_access_token():
     except:
         return jsonify({'message': 'Invalid refresh token'}), 400
 
-
 def check_username_exists(username):
     try:
         # Establish a database connection
@@ -207,5 +206,81 @@ def check_username_exists(username):
         if connection:
             connection.close()
 
+@app.route('/linegraph', methods=['POST'])
+def linegraph():
+    data = request.get_json()
+    user_id = data['userid']
+    duration = int(data['duration'])
+    source = data['source']
+    
+    # Calculate start and end dates based on duration
+    end_date = datetime.datetime.strptime('2024-03-21', '%Y-%m-%d')
+    start_date = end_date - timedelta(days=duration-1)
+
+    
+    # Convert dates to string format for SQL query
+    start = start_date.strftime('%Y-%m-%d')
+    end = end_date.strftime('%Y-%m-%d')
+
+    print(start)
+    print(end)
+    
+    response_data = {'production': [], 'consumption': []}
+    
+    try:
+        # Connect to the database
+        connection = pymysql.connect(**db_config)
+        with connection.cursor() as cursor:
+            # Query for production data
+            sql_production = f"""
+            SELECT energy_kW
+            FROM production
+            WHERE energy_type = %s AND user_id = %s
+            AND DATE(recorded_at) BETWEEN %s AND %s
+            ORDER BY recorded_at;
+            """
+            cursor.execute(sql_production, (source, user_id, start, end))
+            response_data['production'] = [row['energy_kW'] for row in cursor.fetchall()]
+            
+            # Query for consumption data
+            sql_consumption = f"""
+            SELECT energy_kW
+            FROM consumption
+            WHERE energy_type = %s AND user_id = %s
+            AND DATE(recorded_at) BETWEEN %s AND %s
+            ORDER BY recorded_at;
+            """
+            cursor.execute(sql_consumption, (source, user_id, start, end))
+            response_data['consumption'] = [row['energy_kW'] for row in cursor.fetchall()]
+    
+    except Exception as e:
+        print(f"Failed to fetch data: {e}")
+        return jsonify({'error': 'An error occurred fetching data'}), 500
+    
+    finally:
+        if connection:
+            connection.close()
+    
+    return jsonify(response_data)
+
+
+@app.route('/pieChartData', methods=['POST'])
+def pie_chart_data():
+    data = request.json
+    user_id = data['userid']
+    energy_type = data['energy_type']
+
+    production_data = get_percentage(user_id, energy_type, 'production')
+    consumption_data = get_percentage(user_id, energy_type, 'consumption')
+
+    result = {
+        'production': production_data,
+        'consumption': consumption_data
+    }
+
+    return jsonify(result)
+
 if __name__ == '__main__':
+#    generate_Any_energy_last7DaysHourly(table_name,user_id, energyType, minRange, maxRange)
+#    generate_Any_energy_last7DaysHourly('consumption',4, 'hydro', 1200, 4000)
     app.run(use_reloader=True, port=5000, threaded=True)

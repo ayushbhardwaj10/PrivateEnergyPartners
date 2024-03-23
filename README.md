@@ -7,7 +7,7 @@ Flask
 1. /signup API
 
    - used to sign up users.
-   - Security : Performs Salting + hash function to store user's passwords. 'Salting' is a powerful technique to avoid dictionary attacks by hackers by concatinating the Hash of the passwords and a unique salt value for the user and again hashing it to store as the password_hash for the user instead of storing the raw password which is highly vulnerable to data leaks.
+   - Security : Performs Salting + hash function to store user's passwords. 'Salting' is a powerful technique to preserve the password of the user if the server gets compromised. Since the hash of the raw password or the raw password itself is not stored anywhere, it'll be very hard for the hacker to extract the hash of the raw password or the raw password using the password_hash or salted value since we are using one way hash functions here.
    - handels if username already exists
 
 2. /login API

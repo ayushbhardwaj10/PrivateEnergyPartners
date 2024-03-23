@@ -43,3 +43,5 @@ export async function checkToken() {
     return { tokenFound: 0, data: null, error: error.message };
   }
 }
+
+export const capitalizeFirstLetter = (s) => (s ? `${s[0].toUpperCase()}${s.slice(1)}` : "");
