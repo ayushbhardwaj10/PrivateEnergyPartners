@@ -75,7 +75,7 @@ const PairWiseBarGraph = ({ energyFilter }) => {
 
   return (
     option && (
-      <div className="sm:w-[60rem]">
+      <div>
         <HighchartsReact highcharts={Highcharts} options={option} />
       </div>
     )

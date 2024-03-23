@@ -121,7 +121,7 @@ const Home = () => {
   return (
     <div>
       <Header />
-      <div className="bg-[#F6F6F6] md:p-10 lg:p-5 px-1 ">
+      <div className="bg-[#F6F6F6] md:p-10 lg:p-5 px-1">
         <div className="flex pt-4">
           <div className="text-xl font-bold lg:pb-5 pb-2 pr-1">Energy Filter</div>
           <div className="pt-[1px]">
@@ -229,21 +229,21 @@ const Home = () => {
           )}
         </div>
 
-        <div className="Charts">
-          <div>
-            <div className="flex justify-evenly">
+        <div className="Charts pt-4">
+          <div className="xl:flex xl:justify-evenly justify-center">
+            <div className="xl:flex xl:flex-col xl:items-center xl:px-6 px-2">
               <div>
                 <LineGraph duration={duration} energyFilter={energyFilter} key={graphKey} />
               </div>
+              <div className="pt-4">
+                <PairWiseBarGraph energyFilter={energyFilter} />
+              </div>
+            </div>
+            <div className="xl:flex xl:flex-col xl:items-center xl:pt-0 pt-4 justify-center">
               <div>
                 <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={true} />
               </div>
-            </div>
-            <div className="flex justify-evenly pt-8">
-              <div>
-                <PairWiseBarGraph energyFilter={energyFilter} />
-              </div>
-              <div>
+              <div className="pt-4">
                 <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={false} />
               </div>
             </div>

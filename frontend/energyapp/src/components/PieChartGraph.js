@@ -97,7 +97,7 @@ const PieChartGraph = ({ duration, energyFilter, isProduction }) => {
   }, [duration, energyFilter]);
   return (
     option && (
-      <div className="lg:w-[30rem]">
+      <div>
         <PieChart highcharts={Highcharts} options={option} />
       </div>
     )
