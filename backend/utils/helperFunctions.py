@@ -96,23 +96,42 @@ def generate_Any_energy_last7DaysHourly(table_name,user_id, energyType, minRange
         if connection:
             connection.close()
 
-def get_percentage(user_id, energy_type, table_name):
+def get_date_range(duration):
+    # End date is fixed as 21st March 2024
+    end_date = datetime(2024, 3, 21)
+    # Calculate the start date based on the duration
+    start_date = end_date - timedelta(days=duration - 1)
+    return start_date, end_date
+
+def get_percentage(user_id, energy_type, table_name, duration):
+    start_date, end_date = get_date_range(duration)
     try:
         connection = pymysql.connect(**db_config)
         with connection.cursor() as cursor:
-            # Total count of rows matching the energy_type
-            total_query = f"SELECT COUNT(*) AS total FROM {table_name} WHERE energy_type = %s"
-            cursor.execute(total_query, (energy_type,))
-            total_count = cursor.fetchone()['total']
+            # Sum of energy_kW for all matching the energy_type within the date range
+            total_energy_query = f"""
+                SELECT COALESCE(SUM(energy_kW), 0) AS total_energy
+                FROM {table_name} 
+                WHERE energy_type = %s 
+                AND DATE(recorded_at) BETWEEN %s AND %s
+            """
+            cursor.execute(total_energy_query, (energy_type, start_date, end_date))
+            total_energy = cursor.fetchone()['total_energy']
             
-            # Count of rows matching both user_id and energy_type
-            user_query = f"SELECT COUNT(*) AS user_total FROM {table_name} WHERE user_id = %s AND energy_type = %s"
-            cursor.execute(user_query, (user_id, energy_type))
-            user_count = cursor.fetchone()['user_total']
+            # Sum of energy_kW for user_id matching both user_id and energy_type within the date range
+            user_energy_query = f"""
+                SELECT COALESCE(SUM(energy_kW), 0) AS user_energy
+                FROM {table_name} 
+                WHERE user_id = %s 
+                AND energy_type = %s 
+                AND DATE(recorded_at) BETWEEN %s AND %s
+            """
+            cursor.execute(user_energy_query, (user_id, energy_type, start_date, end_date))
+            user_energy = cursor.fetchone()['user_energy']
             
             # Calculate percentages
-            if total_count > 0:
-                user_percentage = (user_count / total_count) * 100
+            if total_energy > 0:
+                user_percentage = (user_energy / total_energy) * 100
                 other_percentage = 100 - user_percentage
             else:
                 user_percentage = 0
@@ -127,3 +146,32 @@ def get_percentage(user_id, energy_type, table_name):
             connection.close()
 
     return {'Yours': user_percentage, 'Others': other_percentage}
+
+def get_energy_data(user_id, energy_type, table_name):
+    # Dates range
+    start_date = datetime(2024, 3, 14)
+    end_date = datetime(2024, 3, 21)
+    
+    energy_data = []
+
+    try:
+        connection = pymysql.connect(**db_config)
+        with connection.cursor() as cursor:
+            for single_date in (start_date + timedelta(days=n) for n in range((end_date - start_date).days + 1)):
+                sql = f"""
+                SELECT COALESCE(SUM(energy_kW),0) AS total_energy
+                FROM {table_name}
+                WHERE user_id = %s
+                AND energy_type = %s
+                AND DATE(recorded_at) = %s
+                """
+                cursor.execute(sql, (user_id, energy_type, single_date.strftime('%Y-%m-%d')))
+                result = cursor.fetchone()
+                energy_data.append(round(result['total_energy'], 2))
+    except Exception as e:
+        print(f"Failed to query energy data: {e}")
+    finally:
+        if connection:
+            connection.close()
+
+    return energy_data

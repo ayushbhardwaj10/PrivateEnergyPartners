@@ -1,9 +1,10 @@
 import Header from "./Header";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import PieChart from "highcharts-react-official";
 import { useState, useEffect } from "react";
 import LineGraph from "./LineGraph";
+import PieChartGraph from "./PieChartGraph";
+import PairWiseBarGraph from "./PairWiseBarGraph";
 
 import {
   MODE,
@@ -18,78 +19,6 @@ const Home = () => {
   const [energyFilter, setEnergyFilter] = useState("solar");
   const [duration, setDuration] = useState(2);
   const [showDropDown, setShowDropDown] = useState(false);
-
-  const OPTIONS_PIE_CHART = {
-    chart: {
-      type: "pie",
-    },
-    title: {
-      text: "Egg Yolk Composition",
-    },
-    tooltip: {
-      valueSuffix: "%",
-    },
-    subtitle: {
-      text: 'Source:<a href="https://www.mdpi.com/2072-6643/11/3/684/htm" target="_default">MDPI</a>',
-    },
-    plotOptions: {
-      series: {
-        allowPointSelect: true,
-        cursor: "pointer",
-        dataLabels: [
-          {
-            enabled: true,
-            distance: 20,
-          },
-          {
-            enabled: true,
-            distance: -40,
-            format: "{point.percentage:.1f}%",
-            style: {
-              fontSize: "1.2em",
-              textOutline: "none",
-              opacity: 0.7,
-            },
-            filter: {
-              operator: ">",
-              property: "percentage",
-              value: 10,
-            },
-          },
-        ],
-      },
-    },
-    series: [
-      {
-        name: "Percentage",
-        colorByPoint: true,
-        data: [
-          {
-            name: "Water",
-            y: 55.02,
-          },
-          {
-            name: "Fat",
-            sliced: true,
-            selected: true,
-            y: 26.71,
-          },
-          {
-            name: "Carbohydrates",
-            y: 1.09,
-          },
-          {
-            name: "Protein",
-            y: 15.5,
-          },
-          {
-            name: "Ash",
-            y: 1.68,
-          },
-        ],
-      },
-    ],
-  };
 
   const OPTIONS_LINE_CHART = {
     series: [
@@ -186,11 +115,13 @@ const Home = () => {
   const changeEnergyFilter = (filterName) => {
     setEnergyFilter(filterName);
   };
-  const lineGraphKey = `${duration}-${energyFilter}`;
+  const graphKey = `${duration}`;
+  const pie1Key = `${duration} pie1`;
+  const pie2Key = `${duration} pie2`;
   return (
     <div>
       <Header />
-      <div className="bg-[#F6F6F6] md:p-10 lg:p-5 px-1 h-screen">
+      <div className="bg-[#F6F6F6] md:p-10 lg:p-5 px-1 ">
         <div className="flex pt-4">
           <div className="text-xl font-bold lg:pb-5 pb-2 pr-1">Energy Filter</div>
           <div className="pt-[1px]">
@@ -299,22 +230,24 @@ const Home = () => {
         </div>
 
         <div className="Charts">
-          <LineGraph duration={duration} energyFilter={energyFilter} key={lineGraphKey} />
-          {/* pie chart */}
-          {/* <div className="pt-4">
-            <div>Pie Chart</div>
-            <div className="lg:w-[30rem]">
-              <PieChart highcharts={Highcharts} options={OPTIONS_PIE_CHART} />
+          <div>
+            <div className="flex justify-evenly">
+              <div>
+                <LineGraph duration={duration} energyFilter={energyFilter} key={graphKey} />
+              </div>
+              <div>
+                <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={true} />
+              </div>
             </div>
-          </div> */}
-
-          {/* line chart */}
-          {/* <div>
-            <div>Line Chart</div>
-            <div className="md:w-[30rem]">
-              <HighchartsReact highcharts={Highcharts} options={OPTIONS_LINE_CHART} />
+            <div className="flex justify-evenly pt-8">
+              <div>
+                <PairWiseBarGraph energyFilter={energyFilter} />
+              </div>
+              <div>
+                <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={false} />
+              </div>
             </div>
-          </div> */}
+          </div>
 
           {/* Energy Comparison */}
           {/* <div className="lg:w-[60rem]">

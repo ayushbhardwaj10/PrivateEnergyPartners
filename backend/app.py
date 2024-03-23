@@ -9,7 +9,7 @@ from jwt import ExpiredSignatureError
 import datetime
 from datetime import timedelta
 from functools import wraps
-from utils.helperFunctions import get_percentage
+from utils.helperFunctions import get_percentage, get_energy_data
 
 
 app = Flask(__name__, static_folder='../frontend/energyapp/build', static_url_path='')
@@ -263,19 +263,35 @@ def linegraph():
     
     return jsonify(response_data)
 
-
 @app.route('/pieChartData', methods=['POST'])
 def pie_chart_data():
     data = request.json
     user_id = data['userid']
     energy_type = data['energy_type']
+    duration = int(data['duration'])  # Assuming duration is provided as an integer
 
-    production_data = get_percentage(user_id, energy_type, 'production')
-    consumption_data = get_percentage(user_id, energy_type, 'consumption')
+    production_data = get_percentage(user_id, energy_type, 'production', duration)
+    consumption_data = get_percentage(user_id, energy_type, 'consumption', duration)
 
     result = {
         'production': production_data,
         'consumption': consumption_data
+    }
+
+    return jsonify(result)
+
+@app.route('/getEnergyDateWise', methods=['POST'])
+def get_energy_date_wise():
+    data = request.json
+    user_id = data['user_id']
+    energy_type = data['energy_type']
+
+    production_data = get_energy_data(user_id, energy_type, 'production')
+    consumption_data = get_energy_data(user_id, energy_type, 'consumption')
+
+    result = {
+        "production": production_data,
+        "consumption": consumption_data
     }
 
     return jsonify(result)

@@ -115,7 +115,7 @@ const LineGraph = ({ duration, energyFilter }) => {
 
   return (
     options && (
-      <div className="lg:w-[60rem]">
+      <div className="sm:w-[60rem]">
         <div>
           <HighchartsReact highcharts={Highcharts} options={options} />
         </div>
