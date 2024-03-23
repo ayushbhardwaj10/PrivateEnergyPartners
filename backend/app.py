@@ -296,6 +296,47 @@ def get_energy_date_wise():
 
     return jsonify(result)
 
+@app.route('/GlobalEnergyData', methods=['GET'])
+def global_energy_data():
+    try:
+        # Connect to the database
+        connection = pymysql.connect(**db_config)
+        energy_types = ['solar', 'wind', 'hydro']
+        data = {'production': {}, 'consumption': {}}
+        
+        with connection.cursor() as cursor:
+            # Query for production data
+            for energy_type in energy_types:
+                sql_production = """
+                SELECT ROUND(SUM(energy_kW), 2) AS total_energy
+                FROM production
+                WHERE energy_type = %s;
+                """
+                cursor.execute(sql_production, (energy_type,))
+                result = cursor.fetchone()
+                data['production'][energy_type] = result['total_energy'] if result['total_energy'] is not None else 0.0
+
+            # Query for consumption data
+            for energy_type in energy_types:
+                sql_consumption = """
+                SELECT ROUND(SUM(energy_kW), 2) AS total_energy
+                FROM consumption
+                WHERE energy_type = %s;
+                """
+                cursor.execute(sql_consumption, (energy_type,))
+                result = cursor.fetchone()
+                data['consumption'][energy_type] = result['total_energy'] if result['total_energy'] is not None else 0.0
+
+    except Exception as e:
+        print(f"Failed to fetch data: {e}")
+        return jsonify({'error': 'An error occurred fetching data'}), 500
+
+    finally:
+        if connection:
+            connection.close()
+
+    return jsonify(data)
+
 if __name__ == '__main__':
 #    generate_Any_energy_last7DaysHourly(table_name,user_id, energyType, minRange, maxRange)
 #    generate_Any_energy_last7DaysHourly('consumption',4, 'hydro', 1200, 4000)

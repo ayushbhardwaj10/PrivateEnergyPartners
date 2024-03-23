@@ -5,112 +5,11 @@ import { useState, useEffect } from "react";
 import LineGraph from "./LineGraph";
 import PieChartGraph from "./PieChartGraph";
 import PairWiseBarGraph from "./PairWiseBarGraph";
-
-import {
-  MODE,
-  LINEGRAPH_DATA_API_URL,
-  OPTIONS_PIE_CHART,
-  OPTIONS_LINE_CHART,
-  OPTIONS_LINE_GRAPH,
-  OPTION_ENERGY_COMPARISON_PRODUCTION,
-} from "../utils/Constants";
-
+import GlobalBar from "./GlobalBar";
 const Home = () => {
   const [energyFilter, setEnergyFilter] = useState("solar");
   const [duration, setDuration] = useState(2);
   const [showDropDown, setShowDropDown] = useState(false);
-
-  const OPTIONS_LINE_CHART = {
-    series: [
-      {
-        data: [
-          [0, 1],
-          [1, 2],
-          [2, 3],
-          [3, 5],
-          [4, 8],
-          [5, 13],
-          [6, 21],
-          [7, 34],
-          [8, 55],
-          [9, 89],
-        ],
-      },
-    ],
-  };
-
-  const OPTION_ENERGY_COMPARISON_PRODUCTION = {
-    chart: {
-      type: "bar",
-    },
-    title: {
-      text: "Energy Production Comparison",
-      align: "center",
-    },
-    subtitle: {
-      text: "User 1 vs User 2",
-      align: "center",
-    },
-    xAxis: {
-      categories: ["Ayush Bhardwaj", "John Rogan"],
-      title: {
-        text: null,
-      },
-      gridLineWidth: 1,
-      lineWidth: 0,
-    },
-    yAxis: {
-      min: 0,
-      title: {
-        text: "Energy Generated (KilloWatts)",
-        align: "high",
-      },
-      labels: {
-        overflow: "justify",
-      },
-      gridLineWidth: 0,
-    },
-    tooltip: {
-      valueSuffix: " millions",
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: "40%",
-        dataLabels: {
-          enabled: true,
-        },
-        groupPadding: 0.1,
-      },
-    },
-    legend: {
-      layout: "vertical",
-      align: "right",
-      verticalAlign: "top",
-      x: -40,
-      y: 80,
-      floating: true,
-      borderWidth: 1,
-      backgroundColor: Highcharts.defaultOptions.legend.backgroundColor || "#FFFFFF",
-      shadow: true,
-    },
-    credits: {
-      enabled: false,
-    },
-    series: [
-      {
-        name: "Solar",
-        data: [631, 727],
-      },
-      {
-        name: "Wind",
-        data: [814, 841],
-      },
-      {
-        name: "Hydro",
-        data: [1276, 1007],
-      },
-    ],
-  };
 
   const changeEnergyFilter = (filterName) => {
     setEnergyFilter(filterName);
@@ -122,8 +21,8 @@ const Home = () => {
     <div>
       <Header />
       <div className="bg-[#F6F6F6] md:p-10 lg:p-5 px-1">
-        <div className="flex pt-4">
-          <div className="text-xl font-bold lg:pb-5 pb-2 pr-1">Energy Filter</div>
+        <div className="flex pt-1">
+          <div className="text-xl font-bold lg:pb-1 pb-2 pr-1">Energy Filter</div>
           <div className="pt-[1px]">
             {" "}
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -175,88 +74,89 @@ const Home = () => {
               changeEnergyFilter("comparison");
             }}
           >
-            Comparison
+            Overall Energy
           </div>
         </div>
 
-        <div>
-          <div className="text-xl font-bold lg:pb-5 pb-2 pr-1 lg:pt-8 pt-4">Select Duration</div>
-          <button
-            className=" font-bold bg-green-300 hover:bg-green-200 text-black rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center"
-            type="button"
-            data-dropdown-toggle="dropdown"
-            onClick={() => {
-              setShowDropDown(!showDropDown);
-            }}
-          >
-            last {duration} days
-            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-            </svg>
-          </button>
-          {showDropDown && (
-            <div className="bg-green-300 text-base z-50 list-none divide-y divide-gray-100 rounded shadow my-1 w-[20rem]" id="dropdown">
-              <ul className="py-1" aria-labelledby="dropdown">
-                <li
-                  className="text-sm hover:bg-green-200 text-gray-700 block px-4 py-2"
-                  onClick={() => {
-                    setShowDropDown(false);
-                    setDuration(2);
-                  }}
-                >
-                  last 2 Days
-                </li>
-                <li
-                  className="text-sm hover:bg-green-200 text-gray-700 block px-4 py-2"
-                  onClick={() => {
-                    setShowDropDown(false);
-                    setDuration(4);
-                  }}
-                >
-                  Last 4 days
-                </li>
-                <li
-                  className="text-sm hover:bg-green-200 text-gray-700 block px-4 py-2"
-                  onClick={() => {
-                    setShowDropDown(false);
-                    setDuration(8);
-                  }}
-                >
-                  Last 8 days
-                </li>
-              </ul>
-            </div>
-          )}
-        </div>
+        {energyFilter !== "comparison" && (
+          <div>
+            <div className="text-xl font-bold lg:pb-2 pb-1 pr-1 lg:pt-2 pt-1">Select Duration</div>
+            <button
+              className=" font-bold bg-green-300 hover:bg-green-200 text-black rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center"
+              type="button"
+              data-dropdown-toggle="dropdown"
+              onClick={() => {
+                setShowDropDown(!showDropDown);
+              }}
+            >
+              last {duration} days
+              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+            </button>
+            {showDropDown && (
+              <div className="bg-green-300 text-base z-50 absolute list-none divide-y divide-gray-100 rounded shadow my-1 w-[20rem]" id="dropdown">
+                <ul className="py-1" aria-labelledby="dropdown">
+                  <li
+                    className="text-sm hover:bg-green-200 text-gray-700 block px-4 py-2"
+                    onClick={() => {
+                      setShowDropDown(false);
+                      setDuration(2);
+                    }}
+                  >
+                    last 2 Days
+                  </li>
+                  <li
+                    className="text-sm hover:bg-green-200 text-gray-700 block px-4 py-2"
+                    onClick={() => {
+                      setShowDropDown(false);
+                      setDuration(4);
+                    }}
+                  >
+                    Last 4 days
+                  </li>
+                  <li
+                    className="text-sm hover:bg-green-200 text-gray-700 block px-4 py-2"
+                    onClick={() => {
+                      setShowDropDown(false);
+                      setDuration(8);
+                    }}
+                  >
+                    Last 8 days
+                  </li>
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
 
-        <div className="Charts pt-4">
-          <div className="xl:flex xl:justify-evenly justify-center">
-            <div className="xl:flex xl:flex-col xl:items-center xl:px-6 px-2">
-              <div>
-                <LineGraph duration={duration} energyFilter={energyFilter} key={graphKey} />
+        {energyFilter !== "comparison" && (
+          <div className="Charts pt-4">
+            <div className="xl:flex xl:justify-evenly justify-center">
+              <div className="xl:flex xl:flex-col xl:items-center xl:px-6 px-2">
+                <div>
+                  <LineGraph duration={duration} energyFilter={energyFilter} key={graphKey} />
+                </div>
+                <div className="pt-4">
+                  <PairWiseBarGraph energyFilter={energyFilter} />
+                </div>
               </div>
-              <div className="pt-4">
-                <PairWiseBarGraph energyFilter={energyFilter} />
-              </div>
-            </div>
-            <div className="xl:flex xl:flex-col xl:items-center xl:pt-0 pt-4 justify-center">
-              <div>
-                <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={true} />
-              </div>
-              <div className="pt-4">
-                <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={false} />
+              <div className="xl:flex xl:flex-col xl:items-center xl:pt-0 pt-4 justify-center">
+                <div>
+                  <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={true} />
+                </div>
+                <div className="pt-4">
+                  <PieChartGraph duration={duration} energyFilter={energyFilter} isProduction={false} />
+                </div>
               </div>
             </div>
           </div>
-
-          {/* Energy Comparison */}
-          {/* <div className="lg:w-[60rem]">
-            <div>Energy Comparison</div>
-            <div>
-              <HighchartsReact highcharts={Highcharts} options={OPTION_ENERGY_COMPARISON_PRODUCTION} />
-            </div>
-          </div> */}
-        </div>
+        )}
+        {energyFilter === "comparison" && (
+          <div>
+            <GlobalBar />
+          </div>
+        )}
       </div>
     </div>
   );

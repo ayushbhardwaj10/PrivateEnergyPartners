@@ -12,9 +12,11 @@ function App() {
     { path: "/home", element: <ProtectedComponent Component={Home} /> },
   ]);
   return (
-    <Provider store={Store}>
-      <RouterProvider router={appRouter} />
-    </Provider>
+    <div className="bg-[#F6F6F6]">
+      <Provider store={Store}>
+        <RouterProvider router={appRouter} />
+      </Provider>
+    </div>
   );
 }
 
