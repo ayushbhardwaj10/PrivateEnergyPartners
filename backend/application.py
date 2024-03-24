@@ -11,12 +11,15 @@ from datetime import timedelta
 from functools import wraps
 from utils.helperFunctions import get_percentage, get_energy_data
 
+#for local and Docker
+# application = Flask(__name__, static_folder='../frontend/energyapplication/build', static_url_path='')
 
-app = Flask(__name__, static_folder='../frontend/energyapp/build', static_url_path='')
-app.config['SECRET_KEY'] = JWT_SECRET_KEY
+#for AWS
+application = Flask(__name__, static_folder='./build', static_url_path='')
+application.config['SECRET_KEY'] = JWT_SECRET_KEY
 
 # Enable CORS for all domains on all routes
-CORS(app, supports_credentials=True, resources={r"*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"], "expose_headers": ["Access-Control-Allow-Origin"], "supports_credentials": True}})
+CORS(application, supports_credentials=True, resources={r"*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"], "expose_headers": ["Access-Control-Allow-Origin"], "supports_credentials": True}})
 
 
 #Utility Function to Verify Tokens
@@ -31,7 +34,7 @@ def token_required(f):
         try:
             # Typically, the Authorization header is in the format "Bearer <token>"
             token = auth_header.split(" ")[1]  # Assuming the format is "Bearer token"
-            jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            jwt.decode(token, application.config['SECRET_KEY'], algorithms=["HS256"])
         except jwt.ExpiredSignatureError:
             return jsonify({'message': 'Token has expired'}), 401  # Specific message for expired token
         except:
@@ -40,16 +43,16 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route('/protected', methods=['GET'])
+@application.route('/protected', methods=['GET'])
 @token_required
 def protected():
     return jsonify({'message': 'This is only available for people with valid tokens.'})
 
-@app.route('/')
+@application.route('/')
 def serve():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(application.static_folder, 'index.html')
 
-@app.route('/signup', methods=['POST'])
+@application.route('/signup', methods=['POST'])
 def signup():
     # Extract data from request
     fullName = request.json.get('fullName')
@@ -82,14 +85,14 @@ def signup():
             return jsonify({"success": True})
     except Exception as e:
         # In case of any exception, log the error and return a 500 response
-        print(f"Failed to insert user: {e}")  # Adjust logging as appropriate for your application
+        print(f"Failed to insert user: {e}")  # Adjust logging as applicationropriate for your applicationlication
         return jsonify({"error": "An error occurred during signup"}), 500
     finally:
         # Ensure the database connection is closed
         if connection:
             connection.close()
 
-@app.route('/login', methods=['POST'])
+@application.route('/login', methods=['POST'])
 def login():
     auth = request.authorization
 
@@ -125,12 +128,12 @@ def login():
             # Check if the generated hash matches the stored hash
             if password_hash == stored_password_hash:
                 # return jsonify({"message": "Successful login", "fullName" : fullName}), 200
-                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)}, app.config['SECRET_KEY'], algorithm="HS256")
+                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)}, application.config['SECRET_KEY'], algorithm="HS256")
                 
                 # Generate refresh token
                 refresh_token = jwt.encode(
                     {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=2)},
-                    app.config['SECRET_KEY'], algorithm="HS256"
+                    application.config['SECRET_KEY'], algorithm="HS256"
                 )
 
                 return jsonify({"message": "Successful login", "fullName": fullName, "token": token, "userid": user_id, "refresh_token": refresh_token}), 200
@@ -143,7 +146,7 @@ def login():
     finally:
         connection.close()
 
-@app.route('/tokenValid', methods=['GET']) 
+@application.route('/tokenValid', methods=['GET']) 
 def validate_token():
     auth_header = request.headers.get('Authorization')
     if auth_header and auth_header.startswith('Bearer '):
@@ -153,7 +156,7 @@ def validate_token():
     
     try:
         # Decode the token
-        data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        data = jwt.decode(token, application.config['SECRET_KEY'], algorithms=["HS256"])
         # Token is valid, you can also add additional checks here (e.g., user roles)
         return jsonify({'message': 'Token is valid!', 'data': data}), 200
     except ExpiredSignatureError:
@@ -161,7 +164,7 @@ def validate_token():
     except Exception as e:
         return jsonify({'message': 'Token is invalid!'}), 401
 
-@app.route('/refresh_token', methods=['POST'])
+@application.route('/refresh_token', methods=['POST'])
 def refresh_access_token():
 
     auth_header = request.headers.get('Authorization')
@@ -172,7 +175,7 @@ def refresh_access_token():
     
     try:
         # Attempt to decode the refresh token
-        payload = jwt.decode(refresh_token, app.config['SECRET_KEY'], algorithms=["HS256"])
+        payload = jwt.decode(refresh_token, application.config['SECRET_KEY'], algorithms=["HS256"])
         # Extract user info from token payload if needed
         username = payload['user']
         
@@ -180,7 +183,7 @@ def refresh_access_token():
         new_access_token = jwt.encode({
             'user': username,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-        }, app.config['SECRET_KEY'], algorithm="HS256")
+        }, application.config['SECRET_KEY'], algorithm="HS256")
         
         # Send new access token to the client
         return jsonify({'token': new_access_token})
@@ -201,12 +204,12 @@ def check_username_exists(username):
             # Check the result and return True if the user exists, False otherwise
             return result['userExists']
     except Exception as e:
-        return False  # Consider how you want to handle errors; False is a simple approach
+        return False  # Consider how you want to handle errors; False is a simple applicationroach
     finally:
         if connection:
             connection.close()
 
-@app.route('/linegraph', methods=['POST'])
+@application.route('/linegraph', methods=['POST'])
 def linegraph():
     data = request.get_json()
     user_id = data['userid']
@@ -263,7 +266,7 @@ def linegraph():
     
     return jsonify(response_data)
 
-@app.route('/pieChartData', methods=['POST'])
+@application.route('/pieChartData', methods=['POST'])
 def pie_chart_data():
     data = request.json
     user_id = data['userid']
@@ -280,7 +283,7 @@ def pie_chart_data():
 
     return jsonify(result)
 
-@app.route('/getEnergyDateWise', methods=['POST'])
+@application.route('/getEnergyDateWise', methods=['POST'])
 def get_energy_date_wise():
     data = request.json
     user_id = data['user_id']
@@ -296,7 +299,7 @@ def get_energy_date_wise():
 
     return jsonify(result)
 
-@app.route('/GlobalEnergyData', methods=['GET'])
+@application.route('/GlobalEnergyData', methods=['GET'])
 def global_energy_data():
     try:
         # Connect to the database
@@ -338,6 +341,4 @@ def global_energy_data():
     return jsonify(data)
 
 if __name__ == '__main__':
-#    generate_Any_energy_last7DaysHourly(table_name,user_id, energyType, minRange, maxRange)
-#    generate_Any_energy_last7DaysHourly('consumption',4, 'hydro', 1200, 4000)
-    app.run(use_reloader=True, port=5000, threaded=True)
+    application.run(use_reloader=True, port=5000, threaded=True)

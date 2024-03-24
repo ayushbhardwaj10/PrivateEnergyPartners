@@ -26,6 +26,10 @@ const Login = () => {
 
     if (isSignUp) {
       // sign up
+      if (fullName === "" || userName === "" || password === "" || password2 === "") {
+        setErrorMessage("Please fill all the details");
+        return;
+      }
       if (password !== password2) {
         setErrorMessage("passwords not matching");
         return;
