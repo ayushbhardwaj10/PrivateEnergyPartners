@@ -3,16 +3,42 @@ import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
 import { useState, useEffect } from "react";
 import { MODE, GLOBAL_ENERGY_DATA_API_URL } from "../utils/Constants";
+import { refreshAccessToken } from "../utils/HelperFunctions";
+import useLogout from "../utils/useLogout";
 
 const GlobalBar = () => {
   const [option, setOption] = useState(null);
-  // const [width, setWidth] = useState(window.innerWidth);
-
+  const logoutFromApp = useLogout();
+  let data = null;
   const callGlobalEnergyAPI = async () => {
     try {
-      const response = await fetch(GLOBAL_ENERGY_DATA_API_URL[MODE]);
-      if (!response.ok) throw new Error("Error in fetching Gloabl Energy data");
-      const data = await response.json();
+      let accessToken = localStorage.getItem("token");
+      const response = await fetch(GLOBAL_ENERGY_DATA_API_URL[MODE], {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+      if (response.status === 401) {
+        console.log("refreshing global bar chart graph api..");
+        const newAccessToken = await refreshAccessToken();
+        if (newAccessToken) {
+          localStorage.setItem("token", newAccessToken);
+          const response2 = await fetch(GLOBAL_ENERGY_DATA_API_URL[MODE], {
+            headers: {
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+          });
+          data = await response2.json();
+        } else {
+          console.log("logging out");
+          alert("Session is expired. Please login again");
+          logoutFromApp();
+          return;
+        }
+      } else if (!response.ok) {
+        throw new Error("Error in calling Global Bar API, loggin out the user...");
+      } else data = await response.json();
+
       const globalEnergyOption = {
         chart: {
           type: "bar",

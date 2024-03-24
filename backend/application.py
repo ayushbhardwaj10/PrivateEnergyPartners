@@ -43,11 +43,6 @@ def token_required(f):
         return f(*args, **kwargs)
     return decorated
 
-@application.route('/protected', methods=['GET'])
-@token_required
-def protected():
-    return jsonify({'message': 'This is only available for people with valid tokens.'})
-
 @application.route('/')
 def serve():
     return send_from_directory(application.static_folder, 'index.html')
@@ -128,11 +123,11 @@ def login():
             # Check if the generated hash matches the stored hash
             if password_hash == stored_password_hash:
                 # return jsonify({"message": "Successful login", "fullName" : fullName}), 200
-                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10)}, application.config['SECRET_KEY'], algorithm="HS256")
+                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, application.config['SECRET_KEY'], algorithm="HS256")
                 
                 # Generate refresh token
                 refresh_token = jwt.encode(
-                    {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)},
+                    {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)},
                     application.config['SECRET_KEY'], algorithm="HS256"
                 )
 
@@ -182,7 +177,7 @@ def refresh_access_token():
         # Generate a new access token
         new_access_token = jwt.encode({
             'user': username,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)
         }, application.config['SECRET_KEY'], algorithm="HS256")
         
         # Send new access token to the client
@@ -268,6 +263,7 @@ def linegraph():
     return jsonify(response_data)
 
 @application.route('/pieChartData', methods=['POST'])
+@token_required
 def pie_chart_data():
     data = request.json
     user_id = data['userid']
@@ -285,6 +281,7 @@ def pie_chart_data():
     return jsonify(result)
 
 @application.route('/getEnergyDateWise', methods=['POST'])
+@token_required
 def get_energy_date_wise():
     data = request.json
     user_id = data['user_id']
@@ -301,6 +298,7 @@ def get_energy_date_wise():
     return jsonify(result)
 
 @application.route('/GlobalEnergyData', methods=['GET'])
+@token_required
 def global_energy_data():
     try:
         # Connect to the database

@@ -3,11 +3,12 @@ import { useState, useEffect } from "react";
 import { MODE, PIECHART_DATA_API_URL } from "../utils/Constants";
 import Highcharts from "highcharts";
 import PieChart from "highcharts-react-official";
-import { capitalizeFirstLetter } from "../utils/HelperFunctions";
+import { capitalizeFirstLetter, refreshAccessToken } from "../utils/HelperFunctions";
 
 const PieChartGraph = ({ duration, energyFilter, isProduction }) => {
   const [option, setOption] = useState(null);
   const type = isProduction ? "production" : "consumption";
+  let data = null;
   const pieChartAPI = async () => {
     try {
       const payload = {
@@ -15,15 +16,36 @@ const PieChartGraph = ({ duration, energyFilter, isProduction }) => {
         energy_type: energyFilter,
         duration: duration,
       };
+      let accessToken = localStorage.getItem("token");
       const response = await fetch(PIECHART_DATA_API_URL[MODE], {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Error in fetching Pie Graph data");
-      const data = await response.json();
+      if (response.status === 401) {
+        console.log("refreshing pie chart graph api..");
+        const newAccessToken = await refreshAccessToken();
+        if (newAccessToken) {
+          localStorage.setItem("token", newAccessToken);
+          const response2 = await fetch(PIECHART_DATA_API_URL[MODE], {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+            body: JSON.stringify(payload),
+          });
+          data = await response2.json();
+        } else {
+          //loggin out from LineGraph.js
+          return;
+        }
+      } else if (!response.ok) {
+        throw new Error("Error in calling Pie chart API, loggin out the user...");
+      } else data = await response.json();
 
       let OPTIONS_PIE_CHART = {
         chart: {

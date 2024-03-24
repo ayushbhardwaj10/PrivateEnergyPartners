@@ -14,7 +14,7 @@ Flask
    - logs in the user.
    - To verify password, password_hash is used. pass_hash = hash(passHash from client + salting) is calculated and compared with password_hash stored in the backend.
    - If yes return 200 OK with two JWT tokens : access tokens (valid for 15 minutes) and refresh tokens(valid for 2 days)
-3. Protecting the Rest API with JWT Tokens :
+3. Protecting all the Rest APIs with JWT Tokens :
    @token_required is a decorator
 
    - Decorator used to protect the flask Rest APIs that only the users with fresh JWT access token can access the resources.

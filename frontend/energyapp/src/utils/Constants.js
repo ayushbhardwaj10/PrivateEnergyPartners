@@ -44,8 +44,3 @@ export const REFRESH_TOKEN_API_URL = [
   "http://127.0.0.1:5001/refresh_token",
   "http://energy.eba-nq9wrg49.us-east-2.elasticbeanstalk.com/refresh_token",
 ];
-export const PROTECTED_API_URL = [
-  "http://127.0.0.1:5000/protected",
-  "http://127.0.0.1:5001/protected",
-  "http://energy.eba-nq9wrg49.us-east-2.elasticbeanstalk.com/protected",
-];

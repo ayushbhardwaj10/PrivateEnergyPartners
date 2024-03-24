@@ -52,7 +52,7 @@ const LineGraph = ({ duration, energyFilter }) => {
           return;
         }
       } else if (!response.ok) {
-        throw new Error("Error in calling refresh token, loggin out the user...");
+        throw new Error("Error in calling Line graph API, loggin out the user...");
       } else data = await response.json();
 
       let start = 21 - duration + 1;
