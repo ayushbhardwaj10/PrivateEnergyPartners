@@ -14,13 +14,14 @@ Flask
    - logs in the user.
    - To verify password, password_hash is used. pass_hash = hash(passHash from client + salting) is calculated and compared with password_hash stored in the backend.
    - If yes return 200 OK with two JWT tokens : access tokens (valid for 15 minutes) and refresh tokens(valid for 2 days)
-3. @token_required
+3. Protecting the Rest API with JWT Tokens :
+   @token_required is a decorator
 
-   - it's used to protect the flask APIs that only the users with fresh JWT access token can access the resources.
+   - Decorator used to protect the flask Rest APIs that only the users with fresh JWT access token can access the resources.
 
 4. /refresh_token
    - endpoint used to refresh the access token by providing the refresh_token and if refresh token is valid and fresh,
-     returns a new access token to client.
+     returns a new access token to client
 
 ##############################
 React
@@ -33,20 +34,14 @@ React
 5. Sign Up : Check if user already exists and show a message to user
 6. Sign Up : After successfull Sign up, convey to user and then navigate to sign in tab.
 7. Following Modular programming approach : Built seperate files for storing the constants in utils/constants.js, utils/HelperFunctions.js
-8. Security : Sending one way Hash of the password and not exposing the original password on network call.
-
-   One way hash implementation in code :
-
-   - Text Encoding: The password string is first encoded into a Uint8Array using TextEncoder. This is necessary because the Web Crypto API operates on byte data, not strings.
-
-   - Hashing: The crypto.subtle.digest method is used to hash the encoded data. This method is part of the SubtleCrypto interface, which provides a number of low-level cryptographic primitives. The 'SHA-256' argument specifies that we want to use the SHA-256 hash function.
-
-   - Hash Conversion: The result of crypto.subtle.digest is an ArrayBuffer. This buffer is converted into an array of bytes (Uint8Array), and then each byte is converted to a hexadecimal string. These hex strings are concatenated to form the final hash string.
+8. Security : Sending one way Hash of the password and not exposing the original password on network call using SHA256 hashing technique. Sameword generates same-hash.
 
 9. Protecting the routes : Users cannot enter Home page (ie. /home) without first logging it. If they try, they will automatically be re-routed to the login page.
 10. Responsive UI development : Using tailwind CSS.
 11. Logout : When user click logout, clear the Redux store and navigate to login page.
-12. JWT (JSON Web Tokens) based authentications. When user logs in they get a temporary access token valid for 15 minutes and a refresh tokens valid for 2 days. When the access token expires, the refresh token is used to generate a new access token again automatically and user doesn't have to interfere.
+12. JWT (JSON Web Tokens) based authentications. When user logs in they get a temporary access token valid for just 10 minutes and a refresh tokens valid for 1 day. When the access token expires, the refresh token is used to generate a new access token again seamlessly where user doesn't interfere. If the refresh tokens expires, user gets loggout out with a alert message of "Session Expired".
+
+1
 
 ##############################
 MySQL Database

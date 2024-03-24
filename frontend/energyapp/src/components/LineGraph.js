@@ -2,8 +2,9 @@ import React from "react";
 import { useState, useEffect } from "react";
 import Highcharts from "highcharts";
 import HighchartsReact from "highcharts-react-official";
-import { capitalizeFirstLetter } from "../utils/HelperFunctions";
+import { capitalizeFirstLetter, refreshAccessToken } from "../utils/HelperFunctions";
 import { MODE, LINEGRAPH_DATA_API_URL } from "../utils/Constants";
+import useLogout from "../utils/useLogout";
 
 const LineGraph = ({ duration, energyFilter }) => {
   //   const [productionList, setProductionList] = useState([]);
@@ -11,28 +12,50 @@ const LineGraph = ({ duration, energyFilter }) => {
   //const [chartKey, setChartKey] = useState(Date.now()); // 1. State to hold the unique key
   const [options, setOption] = useState(null);
 
+  const logoutFromApp = useLogout();
+
   const lineGraphAPI = async () => {
+    let data = null;
     try {
       const payload = {
         userid: parseInt(localStorage.getItem("userid"), 10),
         duration: duration,
         source: energyFilter,
       };
+      let accessToken = localStorage.getItem("token");
       const response = await fetch(LINEGRAPH_DATA_API_URL[MODE], {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify(payload),
       });
-      if (!response.ok) throw new Error("Error in fetching line Graph data");
-      const data = await response.json();
+      if (response.status === 401) {
+        console.log("refreshing line graph api..");
+        const newAccessToken = await refreshAccessToken();
+        if (newAccessToken) {
+          localStorage.setItem("token", newAccessToken);
+          const response2 = await fetch(LINEGRAPH_DATA_API_URL[MODE], {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newAccessToken}`,
+            },
+            body: JSON.stringify(payload),
+          });
+          data = await response2.json();
+        } else {
+          console.log("logging out");
+          alert("Session is expired. Please login again");
+          logoutFromApp();
+          return;
+        }
+      } else if (!response.ok) {
+        throw new Error("Error in calling refresh token, loggin out the user...");
+      } else data = await response.json();
 
       let start = 21 - duration + 1;
-      //   if (duration === 4) start = 18;
-      //   if (duration === 8) start = 14;
-
-      console.log("start :" + start);
 
       const newOption = {
         chart: {

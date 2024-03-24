@@ -128,11 +128,11 @@ def login():
             # Check if the generated hash matches the stored hash
             if password_hash == stored_password_hash:
                 # return jsonify({"message": "Successful login", "fullName" : fullName}), 200
-                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)}, application.config['SECRET_KEY'], algorithm="HS256")
+                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10)}, application.config['SECRET_KEY'], algorithm="HS256")
                 
                 # Generate refresh token
                 refresh_token = jwt.encode(
-                    {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=2)},
+                    {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)},
                     application.config['SECRET_KEY'], algorithm="HS256"
                 )
 
@@ -182,7 +182,7 @@ def refresh_access_token():
         # Generate a new access token
         new_access_token = jwt.encode({
             'user': username,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=10)
         }, application.config['SECRET_KEY'], algorithm="HS256")
         
         # Send new access token to the client
@@ -210,6 +210,7 @@ def check_username_exists(username):
             connection.close()
 
 @application.route('/linegraph', methods=['POST'])
+@token_required
 def linegraph():
     data = request.get_json()
     user_id = data['userid']
