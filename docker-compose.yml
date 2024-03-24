@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  frontend:
+    image: ayushbhardwaj/reactapp # Use the image built previously
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  backend:
+    image: ayushbhardwaj/flaskapp # Use the image built previously
+    ports:
+      - "5001:5000"
+    depends_on:
+      - db
+  db:
+    image: arm64v8/mysql # Use arm64v8/mysql image specifically for ARM64 architecture
+    volumes:
+      - ./mysql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: energy
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+
+volumes:
+  db_data:
