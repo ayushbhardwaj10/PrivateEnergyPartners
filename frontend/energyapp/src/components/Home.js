@@ -1,15 +1,47 @@
 import Header from "./Header";
-import Highcharts from "highcharts";
-import HighchartsReact from "highcharts-react-official";
 import { useState, useEffect } from "react";
 import LineGraph from "./LineGraph";
 import PieChartGraph from "./PieChartGraph";
 import PairWiseBarGraph from "./PairWiseBarGraph";
 import GlobalBar from "./GlobalBar";
+import { LINEGRAPH_DATA_API_URL, MODE } from "../utils/Constants";
+
 const Home = () => {
   const [energyFilter, setEnergyFilter] = useState("solar");
   const [duration, setDuration] = useState(2);
   const [showDropDown, setShowDropDown] = useState(false);
+  const [isUserDataFound, setIsUserDataFound] = useState(true);
+
+  const checkIfUserDataExists = async () => {
+    let data = null;
+    console.log("Checking if user exists...");
+    try {
+      const payload = {
+        userid: parseInt(localStorage.getItem("userid"), 10),
+        duration: duration,
+        source: energyFilter,
+      };
+      let accessToken = localStorage.getItem("token");
+      const response = await fetch(LINEGRAPH_DATA_API_URL[MODE], {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error("Error in calling Line graph API, loggin out the user...");
+      } else data = await response.json();
+      if (data.production.length === 0 && data.consumption.length === 0) setIsUserDataFound(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    checkIfUserDataExists();
+  }, [localStorage.getItem("userid")]);
 
   const changeEnergyFilter = (filterName) => {
     setEnergyFilter(filterName);
@@ -17,6 +49,14 @@ const Home = () => {
   const graphKey = `${duration}`;
   const pie1Key = `${duration} pie1`;
   const pie2Key = `${duration} pie2`;
+  if (!isUserDataFound)
+    return (
+      <div>
+        <Header />
+        <div className="flex justify-center bg-white pt-10 font-bold text-xl">User Data not Found</div>
+      </div>
+    );
+
   return (
     <div>
       <Header />
