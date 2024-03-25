@@ -22,6 +22,8 @@ Flask
 4. /refresh_token
    - endpoint used to refresh the access token by providing the refresh_token and if refresh token is valid and fresh,
      returns a new access token to client
+5. Write test cases to test Flask API. Go to /backend and Run the test cases using : python3 -m unittest discover tests
+6.
 
 ##############################
 React

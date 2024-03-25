@@ -41,11 +41,6 @@ const Login = () => {
 
       // hashPassword is a async method, thus, call SignAPI only when hashPassword() returns results
       hashPassword(password).then((passwordHash) => {
-        // console.log(fullName);
-        // console.log(userName);
-        // console.log(password);
-        // console.log(password2);
-
         fetch(SIGNUP_API_URL[MODE], {
           method: "POST",
           headers: {
@@ -83,7 +78,9 @@ const Login = () => {
         return;
       }
       hashPassword(password).then((passwordHash) => {
+        console.log("passwordHash :", passwordHash);
         const credentials = btoa(`${userName}:${passwordHash}`); // Base64 encode username and password
+        console.log("credentials :", credentials);
 
         fetch(SIGNIN_API_URL[MODE], {
           method: "POST",
