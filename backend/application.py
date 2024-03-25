@@ -12,11 +12,11 @@ from functools import wraps
 from utils.helperFunctions import get_percentage, get_energy_data
 
 #for local and Docker
-# application = Flask(__name__, static_folder='../frontend/energyapplication/build', static_url_path='')
+application = Flask(__name__, static_folder='../frontend/energyapplication/build', static_url_path='')
 
 #for AWS
-application = Flask(__name__, static_folder='./build', static_url_path='')
-application.config['SECRET_KEY'] = JWT_SECRET_KEY
+# application = Flask(__name__, static_folder='./build', static_url_path='')
+# application.config['SECRET_KEY'] = JWT_SECRET_KEY
 
 # Enable CORS for all domains on all routes
 CORS(application, supports_credentials=True, resources={r"*": {"origins": "*", "allow_headers": ["Content-Type", "Authorization", "Access-Control-Allow-Credentials"], "expose_headers": ["Access-Control-Allow-Origin"], "supports_credentials": True}})

@@ -1,4 +1,4 @@
-export const MODE = 0;
+export const MODE = 1;
 // MODE = 0 - For local testing,
 // MODE = 1 - For dockerization
 // MODE = 2 - For deployment over AWS
