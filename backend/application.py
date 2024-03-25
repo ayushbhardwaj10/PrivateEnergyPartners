@@ -90,14 +90,10 @@ def signup():
 
 @application.route('/login', methods=['POST'])
 def login():
-    auth = request.authorization
-
-    if not auth or not auth.username or not auth.password:
-        return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
-    
-    # Extract username and password from the request
+   # Extract username and password from the request
     username = request.json.get('userName')
     password = request.json.get('password')
+    
 
 
     if not username or not password:

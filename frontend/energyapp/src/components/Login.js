@@ -79,14 +79,11 @@ const Login = () => {
       }
       hashPassword(password).then((passwordHash) => {
         console.log("passwordHash :", passwordHash);
-        const credentials = btoa(`${userName}:${passwordHash}`); // Base64 encode username and password
-        console.log("credentials :", credentials);
         console.log(SIGNIN_API_URL[MODE]);
         fetch(SIGNIN_API_URL[MODE], {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Basic ${credentials}`,
           },
           body: JSON.stringify({
             userName: userName,
