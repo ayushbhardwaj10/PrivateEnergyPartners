@@ -1,4 +1,28 @@
-                                                FEATURES
+##############################
+React
+##############################
+
+1. Toggle Login and Signin and view the passwords.
+2. Sign Up and Login Forms : 
+   (a) Empty fields are not accepted and message shown to user.
+   (b) Matching password and confirm password and showing appropriate error message
+   (c) Required password is minimum 5 characters long with atleast 1 Capital Symbol and 1 special symbol and showing appropriate error message if user enters wrong. Built a regular expression to validate the problem string.
+   (d) Check if user already exists and show a message to user
+   (e) After successfull Sign up, convey to user and then navigate to sign in tab.
+3. Security : Sending one way Hash of the password and not exposing the original password on network call using SHA256 hashing technique. Same word generates same one way hash.
+4. Protecting the routes : Users cannot enter Home page (ie. /home) without first logging it.
+6. Logout : When user click logout, terminate the JWT user session and return to login screen.
+7. JWT (JSON Web Tokens) based authentications. When user logs in they get a temporary access token valid for just 10 minutes and a refresh tokens valid for 1 day. 
+   - When the access token expires, the refresh token is used to generate a new access token again seamlessly where user doesn't interfere. If the refresh tokens expires, user gets loggout out with a alert message of "Session Expired".
+8. Highcharts integration and using dynamic graphs which changes as the filters change on the fly. Users can also interact with the graph by clicking
+    it's properties to change it and hover over it to view more details.
+9. Responsive Web design using Tailwind CSS.
+10. Displaying 4 types of dynamic graphs - Linear graph, Pairwise bar charts, Bar graph and group bar graphs.
+11. Filtering the data and building graphs dynamically based on filter selection. 
+12. Filters used :  
+    (a) Based on source of energy : Solar , Wind and hydro
+    (b) Based on Days : Last 2 days, Last 4 days and Last 8 days.
+13. A seperate tab to show a graph showing overall energy production and consumption to understand the global energy scale.                                                FEATURES
 
 ##############################
 Flask
@@ -27,32 +51,16 @@ Flask
 
 6. Wrote test cases to test Flask API. Go to /backend and Run the test cases using : python3 -m unittest discover tests
 
-##############################
-React
-##############################
-
-1. Login component - Ability to login and signup
-2. Toggle Login and Signin and view the passwords.
-3. Sign Up : Verifying passwords are matching and showing appropriate error message.
-4. Sign Up : Verifying password is minimum 5 characters long with atleast 1 Capital Symbol and 1 special symbol and showing appropriate error message if user enters wrong. Built a regular expression to validate the problem string.
-5. Sign Up : Check if user already exists and show a message to user
-6. Sign Up : After successfull Sign up, convey to user and then navigate to sign in tab.
-7. Following Modular programming approach : Built seperate files for storing the constants in utils/constants.js, utils/HelperFunctions.js
-8. Security : Sending one way Hash of the password and not exposing the original password on network call using SHA256 hashing technique. Same word generates same-hash.
-9. Protecting the routes : Users cannot enter Home page (ie. /home) without first logging it. If they try, they will automatically be re-routed to the login page.
-10. Responsive UI development : Using tailwind CSS.
-11. Logout : When user click logout, clear the Redux store and navigate to login page.
-12. JWT (JSON Web Tokens) based authentications. When user logs in they get a temporary access token valid for just 10 minutes and a refresh tokens valid for 1 day. When the access token expires, the refresh token is used to generate a new access token again seamlessly where user doesn't interfere. If the refresh tokens expires, user gets loggout out with a alert message of "Session Expired".
-13. Highcharts integration and using dynamic graphs which changes as the filters change on the fly. Users can also interact with the graph by clicking
-    it's properties to change it and hover over it to view more details.
-
 
 ##############################
 MySQL Database
 ##############################
 
 1. Create table users with columns - id, fullname, userName, salt, password_hash
+   - Security : Direct passwords are not stored in databse, but instead the password hash and salt is stored.
+   -  password_hash = hash(salt + hash(raw password))
+   - This ensures that even if the server gets hacked by some hacker, they will not be able to parse the exact password of the user since it's very hard to extract password form password hash.
 
-   - Security : password_hash = hash(salt + hash(raw password))
+2. Table production : stores all the kinds of energy being produced by users.
 
-2.
+3. Table Consumption : stores all the kinds of energy being consumed by users.

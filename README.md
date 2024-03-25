@@ -29,97 +29,63 @@ Note : All the APIs other than /signup and /login are protected and can only be 
    - endpoint : http://127.0.0.1:5001/signup
    - headers : {Content-Type : application/json}
    - body : {
-     "fullName":"Raman Gupta",
-     "userName":"raman@gmail.com",
-     "password":"Password@123"
+     fullName:"Raman Gupta",
+     userName:"raman@gmail.com",
+     password:"Password@123"
      }
 2. Login users : /login - POST
 
    - endpoint : http://127.0.0.1:5001/login
    - headers : {Content-Type : application/json}
    - body : {
-     "userName": <userName of user>,
-     "password": <hash(SHA 256 based) of raw password>
+     userName: username of user,
+     password: hash(SHA 256 based) of raw password
      }
 
    - For testing you can use the username and password a already created user :
-     body : {
-     "userName":"ayush@gmail.com",
-     "password":"ff7bd97b1a7789ddd2775122fd6817f3173672da9f802ceec57f284325bf589f"
+   - body : {
+     userName:"ayush@gmail.com", password:"ff7bd97b1a7789ddd2775122fd6817f3173672da9f802ceec57f284325bf589f"
      }
-
    - Note : You can store the access token returned here. It'll be used for the next APIs.
 
 3. Check if the token is valid: /tokenValid - GET
 
    - endpoint : http://127.0.0.1:5001/tokenValid
-   - header : Authorization: Bearer <access token>
+   - header : Authorization: Bearer Access Token
 
 4. Refresh the token : /refresh_token - POST
 
    - endpoint : http://127.0.0.1:5001/refresh_token
-   - header : Authorization: Bearer <access token>
+   - header : Authorization: Bearer Access Token
 
 5. Fetch the Linear Graph data that compares the production vs consumption for a energy for a duration : /linegraph - POST
    - endpoint : http://127.0.0.1:5001/linegraph
    - headers: {
-     "Content-Type": "application/json",
-     Authorization: Bearer <Access token>,
+     Content-Type: "application/json",
+     Authorization: Bearer Access Token,
      }
-   - body
-     {
-     userid : <userid>
-     duration : <duration>  
-     "source" : <energy source>
-     }
+   - body: { userid : userid, duration : duration of range ,source : energy source }
    - duration - can be only 2,4,8 to represent last 2,4 and 8 days
    - source can be either - solar,wind or hydro
-   - Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
-     body : {
-     "userid" :1,
-     "duration" :2,
-     "source" : "solar"
-     }
+   - Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test body : {userid :1,duration:2,source : solar }
 6. Fetch data for Pie chart graph : /pieChartData : POST
 
    - endpoint : http://127.0.0.1:5001/pieChartData
-   - headers: {
-     "Content-Type": "application/json",
-     Authorization: Bearer <Access token>,
-     }
-   - body
-     {
-     userid : <userid>
-     energy_type : <energy source>
-     "duration" : <duration>  
-      }
-   - can be either - solar,wind or hydro
-   - can be only 2,4,8 to represent last 2,4 and 8 days
-   - Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
-     body : {
-     "userid" :1,
-     "energy_type" :"solar",
-     "duration" :4
-     }
+   - headers: { Content-Type: "application/json", Authorization: Bearer Access token }
+   - body: { userid : userid, energy_type : energy source, duration : duration }
+   - energy_type can be either - solar,wind or hydro
+   - duration can be only 2,4,8 to represent last 2,4 and 8 days
+   - Note : Since the production and consumption data exists only for user id 1 and 4. Please use
+     this to test body : { userid:1,energy_type :solar,duration :4}
 
 7. Get Energy Date wise - used to fetch the energy produced and consumed for last 7 days given a userid - /getEnergyDateWise - POST
 
    - endpoint : http://127.0.0.1:5001/getEnergyDateWise
-   - headers: {
-     Content-Type: application/json,
-     Authorization: Bearer <Access token>,
-     }
-   - body : {
-     "user_id" :<user id>,
-     "energy_type" : <energy source>
-     }
+   - headers: { Content-Type: application/json, Authorization: Bearer Access Token }
+   - body : {user_id : userid of user,energy_type : source of energy }
    - for userid = 1 and 4 we have production and consumption data. please use these two.
-   - can be either - solar,wind or hydro
-     Please use below to test
-     body : {
-     "user_id" :1,
-     "energy_type" : "wind"
-     }
+   - energy_type can be either - solar,wind or hydro
+   - Please use below to test: body : {user_id :1,energy_type : "wind" }
 
 8. Analyze total energy produced and consumed by all the users and the type of energy produced and consumed by all - /GlobalEnergyData - GET
    - endpoint : http://127.0.0.1:5001/GlobalEnergyData
