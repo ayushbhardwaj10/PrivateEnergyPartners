@@ -1,4 +1,4 @@
-\***\*Instructions to setup\*\*** :
+**Instructions to setup** :
 
 ######
 
@@ -19,7 +19,7 @@
 
 Note : Please read Features.txt to view the list of amazing features added to the app.
 
-\***\*APIs List\*\***- (Test this using docker container)
+**APIs List**- (Test this using docker container)
 
 ######
 
@@ -121,13 +121,13 @@ Note : All the APIs other than /signup and /login are protected and can only be 
 
 Note : If at any point, the API's don't work and return 401 status code, it means that the access token has expired, use the /refresh_token token api to get fresh tokens.
 
-\***\*Testing for flask app\*\*** - running test cases
+**Testing for flask app** - running test cases
 
 ######
 
 Go to /backend and Run the test cases using : python3 -m unittest discover tests
 
-\***\*Future Improvement Areas\*\***
+**Future Improvement Areas**
 
 ######
 
