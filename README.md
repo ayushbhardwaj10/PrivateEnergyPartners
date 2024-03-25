@@ -13,8 +13,13 @@ Instructions to setup :
    (a) Username : ayush@gmail.com Password : Password@123
    (b) Username : john@gmail.com Password@123
    Note : if you create a new user, it'll still get created but for them, there'll be no production and consumption data.
+9. AWS Deployment (Alterntive to docker for testing) : http://energy.eba-nq9wrg49.us-east-2.elasticbeanstalk.com/
+   - AWS RDS : Utilized for deploying MySQL Database
+   - AWS Elastic Beanstalk : For deploying ReactJS app and Flask Server.
 
-API Usage
+Note : Please read Features.txt to view the list of amazing features added to the app.
+
+APIs List - (Test this using docker container)
 
 ######
 
@@ -116,7 +121,7 @@ Note : All the APIs other than /signup and /login are protected and can only be 
 
 Note : If at any point, the API's don't work and return 401 status code, it means that the access token has expired, use the /refresh_token token api to get fresh tokens.
 
-Run Test cases for flask
+Testing for flask app - running test cases
 
 ######
 
