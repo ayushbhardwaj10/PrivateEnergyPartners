@@ -42,13 +42,13 @@ Note : All the APIs other than /signup and /login are protected and can only be 
      "password": <hash(SHA 256 based) of raw password>
      }
 
-   For testing you can use the username and password a already created user :
-   body : {
-   "userName":"ayush@gmail.com",
-   "password":"ff7bd97b1a7789ddd2775122fd6817f3173672da9f802ceec57f284325bf589f"
-   }
+   - For testing you can use the username and password a already created user :
+     body : {
+     "userName":"ayush@gmail.com",
+     "password":"ff7bd97b1a7789ddd2775122fd6817f3173672da9f802ceec57f284325bf589f"
+     }
 
-   Note : You can store the access token returned here. It'll be used for the next APIs.
+   - Note : You can store the access token returned here. It'll be used for the next APIs.
 
 3. Check if the token is valid: /tokenValid - GET
 
