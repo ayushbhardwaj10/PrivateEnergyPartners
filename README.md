@@ -89,7 +89,7 @@ Note : All the APIs other than /signup and /login are protected and can only be 
 
 8. Analyze total energy produced and consumed by all the users and the type of energy produced and consumed by all - /GlobalEnergyData - GET
    - endpoint : http://127.0.0.1:5001/GlobalEnergyData
-   - headers : { Authorization: Bearer <Access token>}
+   - headers : { Authorization: Bearer Access Token}
 
 Note : If at any point, the API's don't work and return 401 status code, it means that the access token has expired, use the /refresh_token token api to get fresh tokens.
 
