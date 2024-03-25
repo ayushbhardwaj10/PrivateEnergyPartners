@@ -13,6 +13,7 @@ from utils.helperFunctions import get_percentage, get_energy_data
 
 #for local and Docker
 application = Flask(__name__, static_folder='../frontend/energyapplication/build', static_url_path='')
+application.config['SECRET_KEY'] = JWT_SECRET_KEY
 
 #for AWS
 # application = Flask(__name__, static_folder='./build', static_url_path='')
@@ -101,7 +102,7 @@ def login():
 
     if not username or not password:
         return jsonify({"error": "Username and password are required"}), 400
-
+    
     try:
         # Connect to the database
         connection = pymysql.connect(**db_config)
@@ -110,21 +111,24 @@ def login():
             sql = "SELECT salt, password_hash, fullname, user_id FROM users WHERE userName = %s"
             cursor.execute(sql, (username,))
             result = cursor.fetchone()
+
+            # print(result)
             
             if not result:
                 return jsonify({"error": "Username does not exist"}), 404
             
             salt, stored_password_hash, fullName,user_id = result['salt'], result['password_hash'], result['fullname'],result['user_id']
+  
 
-            # Generate the hash of the provided password with the fetched salt
+            # # Generate the hash of the provided password with the fetched salt
             password_salt_combo = password + salt
+
             password_hash = hashlib.sha256(password_salt_combo.encode()).hexdigest() 
+            print(password_hash)
             
-            # Check if the generated hash matches the stored hash
+            # # Check if the generated hash matches the stored hash
             if password_hash == stored_password_hash:
-                # return jsonify({"message": "Successful login", "fullName" : fullName}), 200
-                token = jwt.encode({'user': auth.username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, application.config['SECRET_KEY'], algorithm="HS256")
-                
+                token = jwt.encode({'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, application.config['SECRET_KEY'], algorithm="HS256")      
                 # Generate refresh token
                 refresh_token = jwt.encode(
                     {'user': username, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)},
@@ -137,6 +141,8 @@ def login():
                  return make_response('Could not verify', 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
                 
     except Exception as e:
+        print("Error in login ::")
+        print(e)
         return jsonify({"error": str(e)}), 500
     finally:
         connection.close()

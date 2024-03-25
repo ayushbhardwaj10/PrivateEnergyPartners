@@ -81,7 +81,7 @@ const Login = () => {
         console.log("passwordHash :", passwordHash);
         const credentials = btoa(`${userName}:${passwordHash}`); // Base64 encode username and password
         console.log("credentials :", credentials);
-
+        console.log(SIGNIN_API_URL[MODE]);
         fetch(SIGNIN_API_URL[MODE], {
           method: "POST",
           headers: {

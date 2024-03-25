@@ -21,6 +21,7 @@ db_config = {
     "cursorclass": pymysql.cursors.DictCursor
 }
 
+
 # For AWS
 # db_config = {
 #     "host": "energy.cvwwg0ooiur2.us-east-2.rds.amazonaws.com",  # Use the service name defined in docker-compose.yml
