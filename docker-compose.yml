@@ -1,21 +1,21 @@
 version: "3.8"
 services:
   frontend:
-    image: ayush1041998/reactapp:latest # Updated to use the new repository on Docker Hub
+    image: ayush1041998/reactapp:latest # Use the image from Docker Hub
     ports:
       - "3000:3000"
     depends_on:
       - backend
 
   backend:
-    image: ayush1041998/flaskapp:latest # Updated to use the new repository on Docker Hub
+    image: ayush1041998/flaskapp:latest # Use the image from Docker Hub
     ports:
       - "5001:5000"
     depends_on:
       - db
 
   db:
-    image: arm64v8/mysql # Use arm64v8/mysql image specifically for ARM64 architecture
+    image: mysql:latest # Use the official MySQL image that supports multiple architectures
     volumes:
       - ./mysql:/docker-entrypoint-initdb.d
     environment:
