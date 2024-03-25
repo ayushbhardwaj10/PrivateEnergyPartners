@@ -69,9 +69,11 @@ Note : All the APIs other than /signup and /login are protected and can only be 
    - body
      {
      userid : <userid>
-     duration : <duration> // can be only 2,4,8 to represent last 2,4 and 8 days  
-      "source" : <energy source> // can be either - solar,wind or hydro
+     duration : <duration>  
+      "source" : <energy source>
      }
+     // duration - can be only 2,4,8 to represent last 2,4 and 8 days
+     // can be either - solar,wind or hydro
      Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
      body : {
      "userid" :1,
@@ -88,9 +90,11 @@ Note : All the APIs other than /signup and /login are protected and can only be 
    - body
      {
      userid : <userid>
-     energy_type : <energy source> // can be either - solar,wind or hydro
-     "duration" : <duration> // can be only 2,4,8 to represent last 2,4 and 8 days  
+     energy_type : <energy source>
+     "duration" : <duration>  
       }
+     // can be either - solar,wind or hydro
+     // can be only 2,4,8 to represent last 2,4 and 8 days
      Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
      body : {
      "userid" :1,
@@ -106,10 +110,12 @@ Note : All the APIs other than /signup and /login are protected and can only be 
      Authorization: Bearer <Access token>,
      }
    - body : {
-     "user_id" :<user id>, // for userid = 1 and 4 we have production and consumption data. please use these two.
-     "energy_type" : <energy source> // can be either - solar,wind or hydro
+     "user_id" :<user id>,
+     "energy_type" : <energy source>
      }
-     Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
+     // for userid = 1 and 4 we have production and consumption data. please use these two.
+     // can be either - solar,wind or hydro
+     Please use below to test
      body : {
      "user_id" :1,
      "energy_type" : "wind"
