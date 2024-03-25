@@ -70,11 +70,11 @@ Note : All the APIs other than /signup and /login are protected and can only be 
      {
      userid : <userid>
      duration : <duration>  
-      "source" : <energy source>
+     "source" : <energy source>
      }
-     // duration - can be only 2,4,8 to represent last 2,4 and 8 days
-     // can be either - solar,wind or hydro
-     Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
+   - duration - can be only 2,4,8 to represent last 2,4 and 8 days
+   - source can be either - solar,wind or hydro
+   - Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
      body : {
      "userid" :1,
      "duration" :2,
@@ -93,9 +93,9 @@ Note : All the APIs other than /signup and /login are protected and can only be 
      energy_type : <energy source>
      "duration" : <duration>  
       }
-     // can be either - solar,wind or hydro
-     // can be only 2,4,8 to represent last 2,4 and 8 days
-     Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
+   - can be either - solar,wind or hydro
+   - can be only 2,4,8 to represent last 2,4 and 8 days
+   - Note : Since the production and consumption data exists only for user id 1 and 4. Please use below to test
      body : {
      "userid" :1,
      "energy_type" :"solar",
@@ -113,8 +113,8 @@ Note : All the APIs other than /signup and /login are protected and can only be 
      "user_id" :<user id>,
      "energy_type" : <energy source>
      }
-     // for userid = 1 and 4 we have production and consumption data. please use these two.
-     // can be either - solar,wind or hydro
+   - for userid = 1 and 4 we have production and consumption data. please use these two.
+   - can be either - solar,wind or hydro
      Please use below to test
      body : {
      "user_id" :1,
