@@ -17,7 +17,7 @@ React
 8. Highcharts integration and using dynamic graphs which changes as the filters change on the fly. Users can also interact with the graph by clicking
     it's properties to change it and hover over it to view more details.
 9. Responsive Web design using Tailwind CSS.
-10. Displaying 4 types of dynamic graphs - Linear graph, Pairwise bar charts, Bar graph and group bar graphs.
+10. Displaying 4 types of dynamic graphs - Linear graph, Pairwise bar charts, Pie Charts and group bar graphs.
 11. Filtering the data and building graphs dynamically based on filter selection. 
 12. Filters used :  
     (a) Based on source of energy : Solar , Wind and hydro
